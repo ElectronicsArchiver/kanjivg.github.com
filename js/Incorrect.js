@@ -23,11 +23,11 @@ jQuery(document).ready(async () => {
     issues.forEach((issue) => {
 
         const { html_url : link , title , user } = issue;
-        const { html_url : user , login : name  } = user;
+        const { html_url : userpage , login : name  } = user;
 
         const author = authors.get(name) ?? {
             issues : [] ,
-            link : user
+            link : userpage
         };
 
         author.issues.push({ title , link });
