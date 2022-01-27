@@ -1,35 +1,25 @@
-jQuery(document).ready(function () {
-    function urldecode(str) {
-        return decodeURIComponent((str + '').replace(/\+/g, '%20'));
-    }
 
-    function getUrlVars() {
-        var vars = [], hash;
-        var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-        for (var i = 0; i < hashes.length; i++) {
-            hash = hashes[i].split('=');
-            vars.push(hash[0]);
-            vars[hash[0]] = urldecode(hash[1]);
-        }
-        return vars;
-    }
 
-    var kanji = getUrlVars()["kanji"];
-    if (kanji == null) {
-        kanji = jQuery('#kanji').val();
-    } else {
-        jQuery('#kanji').val(kanji);
-    }
+const { search } = window.location;
+const parameter = new URLSearchParams(search);
+
+jQuery(document).ready(() => {
+
+    const kanji = parameter.get('kanji') ?? jQuery('#kanji').val();
+
+    jQuery('#kanji').val(kanji);
+
     KanjiViewer.initialize(
-            "kanjiViewer",
-            jQuery('#strokeWidth').val(),
-            jQuery('#fontSize').val(),
-            jQuery('#zoomFactor').val(),
-            jQuery('#displayOrders:checked').val(),
-            jQuery('#colorGroups:checked').val(),
-            kanji
+        "kanjiViewer",
+        jQuery('#strokeWidth').val(),
+        jQuery('#fontSize').val(),
+        jQuery('#zoomFactor').val(),
+        jQuery('#displayOrders:checked').val(),
+        jQuery('#colorGroups:checked').val(),
+        kanji
     );
-    jQuery('#kanjiViewerParams').submit(function () {
+
+    jQuery('#kanjiViewerParams').submit(() => {
         KanjiViewer.setFontSize(jQuery('#fontSize').val());
         KanjiViewer.setZoom(jQuery('#zoomFactor').val());
         KanjiViewer.setStrokeWidth(jQuery('#strokeWidth').val());
