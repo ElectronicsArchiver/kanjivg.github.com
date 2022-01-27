@@ -1,15 +1,14 @@
 
-const Issues =
+const Issues = //`https://api.github.com/repos/KanjiVG/kanjivg/issues`;
     `https://github.com/ElectronicsArchiver/kanjivg.github.com/issues`;
-    //`https://api.github.com/repos/KanjiVG/kanjivg/issues`;
 
 
 function authorToListing([ name , user ]){
 
     let { issues } = user;
 
-    issues =issues
-        .map(({ title , link }) => `<li><a href = '${ link }'>${ title }</a></li>`)
+    issues = issues
+        .map(({ title , link }) => `<li><b><a href = '${ link }'>${ title }</a></b></li>`)
         .join('\n');
 
     return `
@@ -21,21 +20,32 @@ function authorToListing([ name , user ]){
     `;
 }
 
-console.log('test1')
+function openIssue(title,description,label){
+
+    const url = new URL(`${ Issues }/new`);
+
+    const { searchParams } = url;
+
+    searchParams.set('title',title);
+    searchParams.set('body',description);
+    searchParams.set('labels',label);
+
+    open(url,'_blank');
+}
+
 
 window.onload = async () => {
-// jQuery(document).ready(async () => {
-
-    console.log('test2')
 
     const Listing = jQuery('#issue-listing');
 
 
-    jQuery('#incorrect-kanji-reporter').attr('href','#incorrect-kanji-modal');
+    jQuery('#incorrect-kanji-reporter')
+    .attr('href','#incorrect-kanji-modal');
 
 
     const response = await fetch('https://api.github.com/repos/KanjiVG/kanjivg/issues');
     const issues = await response.json();
+
 
     //  Sort By Author
 
@@ -55,6 +65,7 @@ window.onload = async () => {
         authors.set(name,author);
     });
 
+
     //  Visualize Issues
 
     let list = '';
@@ -65,32 +76,12 @@ window.onload = async () => {
     Listing.append(`<ul>${ list }</ul>`);
 
 
-    //
-    //
-    // jQuery.getJSON('https://api.github.com/repos/KanjiVG/kanjivg/issues?callback=?', function (results) {
-    //     var issues = results.data;
-    //     var entries = [];
-    //     var len = issues.length;
-    //     for (i = 0; i < len; i++) {
-    //         var issue = issues[i];
-    //         var user = issue.user.login;
-    //         var title = issue.title;
-    //         var url = issue.html_url;
-    //         entries.push();
-    //     }
-    //     .append(entries.join(''));
-    // });
-
     jQuery('#incorrect-kanji-form').submit(async () => {
 
         const
             isMissing = jQuery('#missing:checked').val(),
             isError = jQuery('#error:checked').val(),
-            isCheck = jQuery('#check:checked').val(),
-            // username = jQuery('#username').val(),
-            // password = jQuery('#password').val(),
-            title = jQuery('#title').val(),
-            body = jQuery('#body').val();
+            isCheck = jQuery('#check:checked').val();
 
 
         function label(){
@@ -104,18 +95,12 @@ window.onload = async () => {
             return 'Please Check';
         }
 
+        const
+            description = jQuery('#body').val(),
+            title = jQuery('#title').val();
 
-        const url = new URL(`${ Issues }/new`);
-
-        const { searchParams } = url;
-
-        searchParams.set('title',title);
-        searchParams.set('body',body);
-        searchParams.set('labels',label());
-
-        open(url,'_blank');
+        openIssue(title,description,label());
 
         return false;
     });
-// });
 }
