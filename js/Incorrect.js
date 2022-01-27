@@ -1,5 +1,6 @@
 
-const Issues = `https://github.com/ElectronicsArchiver/kanjivg.github.com`;
+const Issues =
+    `https://github.com/ElectronicsArchiver/kanjivg.github.com/issues`;
     //`https://api.github.com/repos/KanjiVG/kanjivg/issues`;
 
 const { stringify } = JSON;
@@ -66,7 +67,17 @@ jQuery(document).ready(() => {
             return 'Please Check';
         }
 
-        const data = { title , body , labels : [ label() ] };
+
+        const url = new URL(`${ Issues }/new`);
+
+        const { searchParams } = url;
+
+        searchParams.set('title',title);
+        searchParams.set('body',body);
+        searchParams.set('labels',label());
+
+        open(url,'_blank');
+
         //
         // $.ajax({
         //     type:'POST',
@@ -89,25 +100,25 @@ jQuery(document).ready(() => {
         // });
 
 
-        try {
-            const form = toIssueForm(username,password,data);
-            const response = await fetch(Issues,toIssueForm);
-
-            if(response.ok){
-                jQuery("#error-alert").hide();
-                jQuery('#incorrect-kanji-modal').modal('hide');
-                return;
-            }
-
-            jQuery("#error-message").html(response.json().message);
-            jQuery("#error-alert").show();
-        } catch (e) {
-
-            console.error(e);
-
-            jQuery("#error-message").html(`While sending your issue, a network error occured.`);
-            jQuery("#error-alert").show();
-        }
+        // try {
+        //     const form = toIssueForm(username,password,data);
+        //     const response = await fetch(Issues,toIssueForm);
+        //
+        //     if(response.ok){
+        //         jQuery("#error-alert").hide();
+        //         jQuery('#incorrect-kanji-modal').modal('hide');
+        //         return;
+        //     }
+        //
+        //     jQuery("#error-message").html(response.json().message);
+        //     jQuery("#error-alert").show();
+        // } catch (e) {
+        //
+        //     console.error(e);
+        //
+        //     jQuery("#error-message").html(`While sending your issue, a network error occured.`);
+        //     jQuery("#error-alert").show();
+        // }
 
         return false;
     });
