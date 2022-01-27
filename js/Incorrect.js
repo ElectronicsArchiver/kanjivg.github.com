@@ -3,46 +3,69 @@ const Issues =
     `https://github.com/ElectronicsArchiver/kanjivg.github.com/issues`;
     //`https://api.github.com/repos/KanjiVG/kanjivg/issues`;
 
-const { stringify } = JSON;
+
+jQuery(document).ready(async () => {
+
+    const
+        Listing = jQuery('#issue-listing');
 
 
-function toIssueForm(username,password,data){
-    return {
-        referrerPolicy : 'no-referrer' ,
-        credentials : 'include' ,
-        redirect : 'follow' ,
-        method : 'POST' ,
-        cache : 'no-cache' ,
-        mode : 'cors' ,
-
-        body : stringify(data),
-
-        headers : {
-            'Content-Type' : 'application/json' ,
-            'Authorization' : `Basic ${ btoa(`${ username }:${ password }`) }`
-        }
-    };
-}
+    jQuery('#incorrect-kanji-reporter').attr('href','#incorrect-kanji-modal');
 
 
-jQuery(document).ready(() => {
+    const response = await fetch('https://api.github.com/repos/KanjiVG/kanjivg/issues');
+    const issues = await response.json();
 
+    //  Sort By Author
 
-    jQuery('#incorrect-kanji-reporter').attr('href', '#incorrect-kanji-modal');
+    const authors = new Map;
 
-    jQuery.getJSON('https://api.github.com/repos/KanjiVG/kanjivg/issues?callback=?', function (results) {
-        var issues = results.data;
-        var entries = [];
-        var len = issues.length;
-        for (i = 0; i < len; i++) {
-            var issue = issues[i];
-            var user = issue.user.login;
-            var title = issue.title;
-            var url = issue.html_url;
-            entries.push('<li><a href="' + url + '">' + title + '</a> reported by ' + user + '</li>');
-        }
-        jQuery('#issue-listing').append(entries.join(''));
+    issues.forEach((issue) => {
+
+        const { html_url : link , title , user } = issue;
+        const { html_url : user , login : name  } = user;
+
+        const author = authors.get(name) ?? {
+            issues : [] ,
+            link : user
+        };
+
+        author.issues.push({ title , link });
+        authors.set(name,author);
     });
+
+    //  Visualize Issues
+
+    authors.forEach((user,name) => {
+
+        const issues = user.issues
+            .map(({ title , link }) => `<li><a href = '${ link }'>${ title }</a></li>`)
+            .join('\n');
+
+        Listing.append(`
+            <li>
+                <a href = '${ user.link }'>${ name }</a> :
+                <ul>${ issues }</ul>
+            </li>
+        `)
+    });
+
+
+    //
+    //
+    // jQuery.getJSON('https://api.github.com/repos/KanjiVG/kanjivg/issues?callback=?', function (results) {
+    //     var issues = results.data;
+    //     var entries = [];
+    //     var len = issues.length;
+    //     for (i = 0; i < len; i++) {
+    //         var issue = issues[i];
+    //         var user = issue.user.login;
+    //         var title = issue.title;
+    //         var url = issue.html_url;
+    //         entries.push();
+    //     }
+    //     .append(entries.join(''));
+    // });
 
     jQuery('#incorrect-kanji-form').submit(async () => {
 
@@ -50,8 +73,8 @@ jQuery(document).ready(() => {
             isMissing = jQuery('#missing:checked').val(),
             isError = jQuery('#error:checked').val(),
             isCheck = jQuery('#check:checked').val(),
-            username = jQuery('#username').val(),
-            password = jQuery('#password').val(),
+            // username = jQuery('#username').val(),
+            // password = jQuery('#password').val(),
             title = jQuery('#title').val(),
             body = jQuery('#body').val();
 
@@ -77,48 +100,6 @@ jQuery(document).ready(() => {
         searchParams.set('labels',label());
 
         open(url,'_blank');
-
-        //
-        // $.ajax({
-        //     type:'POST',
-        //     url:,
-        //     data:JSON.stringify(data),
-        //     dataType:'json',
-        //     contentType:'application/x-www-form-urlencoded',
-        //     success:function (results) {
-        //         jQuery("#error-alert").hide();
-        //         jQuery('#incorrect-kanji-modal').modal('hide')
-        //     },
-        //     error:function (request, status, error) {
-        //         var response = jQuery.parseJSON(request.responseText);
-        //         jQuery("#error-message").html(response.message);
-        //         jQuery("#error-alert").show();
-        //     },
-        //     beforeSend:function (xhr) {
-        //         xhr.setRequestHeader('Authorization', 'Basic ' + btoa(username + ':' + password));
-        //     }
-        // });
-
-
-        // try {
-        //     const form = toIssueForm(username,password,data);
-        //     const response = await fetch(Issues,toIssueForm);
-        //
-        //     if(response.ok){
-        //         jQuery("#error-alert").hide();
-        //         jQuery('#incorrect-kanji-modal').modal('hide');
-        //         return;
-        //     }
-        //
-        //     jQuery("#error-message").html(response.json().message);
-        //     jQuery("#error-alert").show();
-        // } catch (e) {
-        //
-        //     console.error(e);
-        //
-        //     jQuery("#error-message").html(`While sending your issue, a network error occured.`);
-        //     jQuery("#error-alert").show();
-        // }
 
         return false;
     });
