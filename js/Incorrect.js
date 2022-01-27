@@ -4,13 +4,13 @@ const Issues =
     //`https://api.github.com/repos/KanjiVG/kanjivg/issues`;
 
 
-function authorToListing(user,name){
+function authorToListing([ name , user ]){
 
     let { issues } = user;
 
-    issues
-    .map(({ title , link }) => `<li><a href = '${ link }'>${ title }</a></li>`)
-    .join('\n');
+    issues =issues
+        .map(({ title , link }) => `<li><a href = '${ link }'>${ title }</a></li>`)
+        .join('\n');
 
     return `
         <li>
@@ -21,8 +21,12 @@ function authorToListing(user,name){
     `;
 }
 
+console.log('test1')
 
-jQuery(document).ready(async () => {
+window.onload = async () => {
+// jQuery(document).ready(async () => {
+
+    console.log('test2')
 
     const Listing = jQuery('#issue-listing');
 
@@ -53,9 +57,10 @@ jQuery(document).ready(async () => {
 
     //  Visualize Issues
 
-    const list = authors
-        .map(authorToListing)
-        .join('');
+    let list = '';
+
+    for(const author of authors.entries())
+        list += authorToListing(author);
 
     Listing.append(`<ul>${ list }</ul>`);
 
@@ -112,4 +117,5 @@ jQuery(document).ready(async () => {
 
         return false;
     });
-});
+// });
+}
