@@ -3,6 +3,6 @@
     height: 350px;
 }
 
-#issue-listing {
+#issue-listing > ul {
     list-style : none;
 }
