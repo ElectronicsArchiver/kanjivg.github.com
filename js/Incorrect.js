@@ -4,10 +4,27 @@ const Issues =
     //`https://api.github.com/repos/KanjiVG/kanjivg/issues`;
 
 
+function authorToListing(user,name){
+
+    let { issues } = user;
+
+    issues
+    .map(({ title , link }) => `<li><a href = '${ link }'>${ title }</a></li>`)
+    .join('\n');
+
+    return `
+        <li>
+            <a href = '${ user.link }'>${ name }</a> :
+            <ul>${ issues }</ul>
+        </li>
+        <br>
+    `;
+}
+
+
 jQuery(document).ready(async () => {
 
-    const
-        Listing = jQuery('#issue-listing');
+    const Listing = jQuery('#issue-listing');
 
 
     jQuery('#incorrect-kanji-reporter').attr('href','#incorrect-kanji-modal');
@@ -36,19 +53,11 @@ jQuery(document).ready(async () => {
 
     //  Visualize Issues
 
-    authors.forEach((user,name) => {
+    const list = authors
+        .map(authorToListing)
+        .join('');
 
-        const issues = user.issues
-            .map(({ title , link }) => `<li><a href = '${ link }'>${ title }</a></li>`)
-            .join('\n');
-
-        Listing.append(`
-            <li>
-                <a href = '${ user.link }'>${ name }</a> :
-                <ul>${ issues }</ul>
-            </li>
-        `)
-    });
+    Listing.append(`<ul>${ list }</ul>`);
 
 
     //

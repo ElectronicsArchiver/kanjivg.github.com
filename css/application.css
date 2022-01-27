@@ -2,3 +2,7 @@
     border: 1px solid #dcdcdc;
     height: 350px;
 }
+
+#issue-listing {
+    list-style : none;
+}
