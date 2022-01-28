@@ -1,43 +1,75 @@
-jQuery(document).ready(function () {
-    function fixedFromCharCode(codePt) {
-        if (codePt > 0xFFFF) {
-            codePt -= 0x10000;
-            return String.fromCharCode(0xD800 + (codePt >> 10), 0xDC00 + (codePt & 0x3FF));
-        }
-        else {
-            return String.fromCharCode(codePt);
-        }
-    }
 
-    jQuery("#load-kanji-listing").click(function () {
-        var btn = jQuery(this);
-        btn.button('loading');
-        jQuery.getJSON("https://api.github.com/repos/KanjiVG/kanjivg/git/refs/heads/master?callback=?", function (refs) {
-            var sha = refs.data.object.sha;
-            jQuery.getJSON("https://api.github.com/repos/KanjiVG/kanjivg/git/trees/" + sha + "?callback=?", function (results) {
-                var trees = results.data.tree;
-                jQuery.each(trees, function (i, value) {
-                    if (value.path == "kanji") {
-                        jQuery.getJSON(value.url + "?callback=?", function (results) {
-                            var trees = results.data.tree;
-                            var entries = [];
-                            var len = trees.length;
-                            for (i = 0; i < len; i++) {
-                                var value = trees[i];
-                                var unicode = value.path;
-                                unicode = unicode.split('.');
-                                unicode = unicode[0];
-                                unicode = "0x" + unicode;
-                                unicode = fixedFromCharCode(unicode);
-                                entries.push(' <a href="viewer.html?kanji=' + unicode + '">' + unicode + '</a> ');
-                            }
-                            jQuery("#kanji-listing").append(entries.join(''));
-                            btn.button('reset');
-                        });
-                    }
-                });
-            });
-        });
-        return false;
-    });
-});
+const { fromCharCode } = String;
+
+/*
+ *  Loading this from the repository
+ *  is pretty redundant, it would be
+ *  better to simply have an index of
+ *  all available kanji.
+ *
+ *  Further, generating the HTML of
+ *  the listing page would be optimal,
+ *  either with a manually called script
+ *  or integrated in Github Actions.
+ */
+
+
+function kanjiFromChar(code){
+
+    if(code <= 0xFFFF)
+        return fromCharCode(code);
+
+    code -= 10000;
+
+    return fromCharCode(
+        0xD800 + (code >> 10),
+        0xDC00 + (code & 0x3FF)
+    );
+}
+
+async function fetchJSON(url){
+    const response = await fetch(url);
+    return await response.json();
+}
+
+
+const
+    URL_Master = `https://api.github.com/repos/KanjiVG/kanjivg/git/refs/heads/master`,
+    URL_Trees = `https://api.github.com/repos/KanjiVG/kanjivg/git/trees`;
+
+async function loadKanji(){
+
+    var btn = jQuery(this);
+    btn.button('loading');
+
+    const { object } = await fetchJSON(URL_Master);
+
+    const { tree } = await fetchJSON(`${ URL_Trees }/${ object.sha }`);
+
+    const folder = tree
+        .find(({ path }) => path === 'kanji');
+
+    if(!folder)
+        return;
+
+    const { tree : files } = await fetchJSON(folder.url);
+
+    const links = files
+        .map(({ path }) => path.split('.')[0])
+        .map((name) => `0x${ name }`)
+        .map(kanjiFromChar)
+        .map((kanji) => `<a href = 'viewer.html?kanji=${ kanji }'>${ kanji }</a>`)
+        .join(' ');
+
+    jQuery("#kanji-listing").append(links);
+
+    btn.button('reset');
+
+    return false;
+}
+
+
+window.onload = () => {
+
+    jQuery("#load-kanji-listing").click(loadKanji);
+}

@@ -1,6 +1,5 @@
 
-const Issues = //`https://api.github.com/repos/KanjiVG/kanjivg/issues`;
-    `https://github.com/ElectronicsArchiver/kanjivg.github.com/issues`;
+const Issues = `https://api.github.com/repos/KanjiVG/kanjivg/issues`;
 
 
 function authorToListing([ name , user ]){
@@ -8,12 +7,12 @@ function authorToListing([ name , user ]){
     let { issues } = user;
 
     issues = issues
-        .map(({ title , link }) => `<li><b><a href = '${ link }'>${ title }</a></b></li>`)
+        .map(({ title , link }) => `<li><a href = '${ link }'>${ title }</a></li>`)
         .join('\n');
 
     return `
         <li>
-            <a href = '${ user.link }'>${ name }</a> :
+            <b><a href = '${ user.link }'>${ name }</a> :</b>
             <ul>${ issues }</ul>
         </li>
         <br>
@@ -43,7 +42,7 @@ window.onload = async () => {
     .attr('href','#incorrect-kanji-modal');
 
 
-    const response = await fetch('https://api.github.com/repos/KanjiVG/kanjivg/issues');
+    const response = await fetch(Issues);
     const issues = await response.json();
 
 
