@@ -19,7 +19,7 @@ function kanjiFromChar(code){
     if(code <= 0xFFFF)
         return fromCharCode(code);
 
-    code -= 10000;
+    code -= 0x10000;
 
     return fromCharCode(
         0xD800 + (code >> 10),
@@ -55,7 +55,9 @@ async function loadKanji(){
     const { tree : files } = await fetchJSON(folder.url);
 
     const links = files
-        .map(({ path }) => path.split('.')[0])
+        .map(({ path }) => path)
+        .filter((path) => !path.includes('-'))
+        .map((path) => path.split('.')[0])
         .map((name) => `0x${ name }`)
         .map(kanjiFromChar)
         .map((kanji) => `<a href = 'viewer.html?kanji=${ kanji }'>${ kanji }</a>`)
