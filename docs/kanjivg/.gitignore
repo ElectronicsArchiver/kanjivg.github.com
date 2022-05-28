@@ -1,0 +1,6 @@
+*~
+kanjivg.xml
+*.pyc
+kanjivg-*xml.gz
+kanjivg-*.zip
+parse-xml.pl
