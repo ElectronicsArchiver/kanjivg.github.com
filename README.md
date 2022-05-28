@@ -25,10 +25,10 @@
     ***[KanjiVG]*** *Github Submodule .*
 
 
-[Layouts]: _layouts/default.html
-[Config]: _config.yml
-[Viewer]: js/kanjiviewer.js
-[Kanji]: kanjivg
+[Layouts]: docs/_layouts/default.html
+[Config]: docs/_config.yml
+[Viewer]: docs/js/kanjiviewer.js
+[Kanji]: docs/kanjivg
 
 [KanjiVG]: https://github.com/KanjiVG/kanjivg
 
